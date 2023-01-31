@@ -229,11 +229,10 @@ function App() {
     <BrowserRouter>
       <div className="page__content">
         <CurrentUserContext.Provider value={currentUser}>
-          <Header key="header" />,
           <Routes>
             <Route
               path="/"
-              element={[
+              element={
                 <Main
                   key="main"
                   onEditProfile={handleEditProfileClick}
@@ -243,9 +242,8 @@ function App() {
                   onCardLike={handleCardLike}
                   onCardDelete={handleConfirmDeleteCardPopup}
                   cards={cards}
-                />,
-                <Footer key="footer" />,
-              ]}
+                />
+              }
             />
             <Route path="/sign-in" element={<Login />} />
             <Route path="/sign-up" element={<Register />} />

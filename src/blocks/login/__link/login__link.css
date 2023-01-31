@@ -6,6 +6,7 @@
   line-height: 1.21;
   color: white;
   transition: linear 0.3s;
+  text-decoration: none;
 }
 
 .login__link:hover {

@@ -2,7 +2,7 @@
 import headerLogoPath from "../images/header-logo.svg";
 
 //компонент хедера
-function Header() {
+function Header({ children }) {
   return (
     <header className="header">
       <img
@@ -10,7 +10,7 @@ function Header() {
         src={headerLogoPath}
         alt="логотип Mesto Russia белого цвета"
       />
-      <a className="header__link">Text</a>
+      {children}
     </header>
   );
 }

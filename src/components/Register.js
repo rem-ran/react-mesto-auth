@@ -1,14 +1,21 @@
+import { Link } from "react-router-dom";
+import CommonLoginPage from "./CommonLoginPage";
+import Header from "./Header";
+
 function Register() {
   return (
-    <div className="login login__container">
-      <h2 className="login__heading">Регистарция</h2>
-      <form className="login__form">
-        <input className="login__input" placeholder="Email" />
-        <input className="login__input" placeholder="Пароль" />
-        <button className="login__submit-btn">Зарегистрироваться</button>
-      </form>
-      <a className="login__link">Уже зарегистрировались? Войти</a>
-    </div>
+    <>
+      <Header>
+        <Link to="/sign-in" className="header__link">
+          Войти
+        </Link>
+      </Header>
+      <CommonLoginPage heading={"Регистрация"} btnTxt={"Зарегистрироваться"}>
+        <Link to="/sign-in" className="login__link">
+          Уже зарегистрировались? Войти
+        </Link>
+      </CommonLoginPage>
+    </>
   );
 }
 
