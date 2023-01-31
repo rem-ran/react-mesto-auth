@@ -10,6 +10,7 @@ function Header() {
         src={headerLogoPath}
         alt="логотип Mesto Russia белого цвета"
       />
+      <a className="header__link">Text</a>
     </header>
   );
 }
