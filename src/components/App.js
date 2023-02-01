@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // импортируем контекст пользователя
 import { CurrentUserContext } from "../context/CurrentUserContext";
@@ -15,6 +15,7 @@ import AddPlacePopup from "./AddPlacePopup";
 import PopupWithConfirmation from "./PopupWithConfirmation";
 import Login from "./Login";
 import Register from "./Register";
+import ProtectedRoute from "./ProtectedRoute";
 import api from "../utils/api";
 
 function App() {
@@ -225,14 +226,16 @@ function App() {
       });
   }
 
+  const [loggedIn, setLoggedIn] = useState(false);
+
   return (
-    <BrowserRouter>
-      <div className="page__content">
-        <CurrentUserContext.Provider value={currentUser}>
-          <Routes>
-            <Route
-              path="/"
-              element={
+    <div className="page__content">
+      <CurrentUserContext.Provider value={currentUser}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute loggedIn={loggedIn}>
                 <Main
                   key="main"
                   onEditProfile={handleEditProfileClick}
@@ -243,49 +246,62 @@ function App() {
                   onCardDelete={handleConfirmDeleteCardPopup}
                   cards={cards}
                 />
-              }
-            />
-            <Route path="/sign-in" element={<Login />} />
-            <Route path="/sign-up" element={<Register />} />
-          </Routes>
-          {/* попап обновления данных пользователя */}
-          <EditProfilePopup
-            isOpen={isEditProfilePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateUser={handleUpdateUser}
-            isLoading={isLoading}
+              </ProtectedRoute>
+            }
           />
-          {/* попап добавления новой карточки */}
-          <AddPlacePopup
-            isOpen={isAddPlacePopupOpen}
-            onClose={closeAllPopups}
-            onAddPlace={handleAddPlace}
-            isLoading={isLoading}
+          <Route
+            path="/sign-in"
+            element={<Login setLoggedIn={setLoggedIn} />}
           />
-          {/* попап обновления аватарки пользователя */}
-          <EditAvatarPopup
-            isOpen={isEditAvatarPopupOpen}
-            onClose={closeAllPopups}
-            onUpdateAvatar={handleUpdateAvatar}
-            isLoading={isLoading}
+          <Route path="/sign-up" element={<Register />} />
+          <Route
+            path="/"
+            element={
+              loggedIn ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
+            }
           />
-          {/* попап с подтверждением удаления карточки */}
-          <PopupWithConfirmation
-            isOpen={isConfirmationPopupOpen}
-            onClose={closeAllPopups}
-            onCardDelete={handleCardDelete}
-            cardToDelete={cardToDelete}
-            isLoading={isLoading}
-          />
-          {/* попап увеличенной картинки карточки */}
-          <ImagePopup
-            card={selectedCard}
-            isOpen={isCardOpen}
-            onClose={closeAllPopups}
-          />
-        </CurrentUserContext.Provider>
-      </div>
-    </BrowserRouter>
+        </Routes>
+        {/* попап обновления данных пользователя */}
+        <EditProfilePopup
+          isOpen={isEditProfilePopupOpen}
+          onClose={closeAllPopups}
+          onUpdateUser={handleUpdateUser}
+          isLoading={isLoading}
+        />
+        {/* попап добавления новой карточки */}
+        <AddPlacePopup
+          isOpen={isAddPlacePopupOpen}
+          onClose={closeAllPopups}
+          onAddPlace={handleAddPlace}
+          isLoading={isLoading}
+        />
+        {/* попап обновления аватарки пользователя */}
+        <EditAvatarPopup
+          isOpen={isEditAvatarPopupOpen}
+          onClose={closeAllPopups}
+          onUpdateAvatar={handleUpdateAvatar}
+          isLoading={isLoading}
+        />
+        {/* попап с подтверждением удаления карточки */}
+        <PopupWithConfirmation
+          isOpen={isConfirmationPopupOpen}
+          onClose={closeAllPopups}
+          onCardDelete={handleCardDelete}
+          cardToDelete={cardToDelete}
+          isLoading={isLoading}
+        />
+        {/* попап увеличенной картинки карточки */}
+        <ImagePopup
+          card={selectedCard}
+          isOpen={isCardOpen}
+          onClose={closeAllPopups}
+        />
+      </CurrentUserContext.Provider>
+    </div>
   );
 }
 

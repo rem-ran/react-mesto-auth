@@ -9,6 +9,13 @@
   transition: linear 0.3s;
 }
 
+@media screen and (max-width: 767px) {
+  .header__link {
+    font-size: 14px;
+    line-height: 1.21;
+  }
+}
+
 .header__link:hover {
   cursor: pointer;
   opacity: 0.6;
