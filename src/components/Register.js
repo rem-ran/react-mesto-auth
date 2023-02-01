@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import CommonLoginPage from "./CommonLoginPage";
 import Header from "./Header";
-import * as Auth from "./Auth";
 
-function Register() {
+function Register({ handleUserSignUp }) {
   const [formValue, setFormValue] = useState({ email: "", password: "" });
-  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -18,10 +16,8 @@ function Register() {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { password, email } = formValue;
-    Auth.register(password, email).then((res) => {
-      navigate("/sign-in", { replace: true });
-    });
+    console.log(formValue);
+    handleUserSignUp(formValue);
   };
   return (
     <>

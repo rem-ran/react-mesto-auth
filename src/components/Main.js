@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { CurrentUserContext } from "../context/CurrentUserContext.js";
-import { Link } from "react-router-dom";
 import Card from "./Card.js";
 import Header from "./Header.js";
 import Footer from "./Footer.js";
@@ -14,6 +13,8 @@ function Main({
   onCardLike,
   onCardDelete,
   cards,
+  userData,
+  handleSignOut,
 }) {
   // const currentUser = useContext(CurrentUserContext);
   const { name, about, avatar } = useContext(CurrentUserContext);
@@ -22,10 +23,14 @@ function Main({
     <>
       <Header>
         <div>
-          <span className="header__email">Email</span>
-          <Link to="/sign-in" className="header__link header__link_type_main">
+          <span className="header__email">{userData.email}</span>
+          <button
+            to="/sign-in"
+            onClick={handleSignOut}
+            className="header__link header__link_type_main"
+          >
             Выйти
-          </Link>
+          </button>
         </div>
       </Header>
       <main>

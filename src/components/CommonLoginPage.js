@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as Auth from "./Auth";
+import * as Auth from "../utils/auth";
 
 function CommonLoginPage({ children, heading, btnTxt }) {
   const [formValue, setFormValue] = useState({ email: "", password: "" });

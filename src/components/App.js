@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 // импортируем контекст пользователя
 import { CurrentUserContext } from "../context/CurrentUserContext";
@@ -17,6 +17,7 @@ import Login from "./Login";
 import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
 import api from "../utils/api";
+import * as auth from "../utils/auth";
 
 function App() {
   //переменная состояния попапа обновления данных пользователя
@@ -46,6 +47,12 @@ function App() {
 
   //переменная состояния открытого модального окна
   const [isLoading, setIsLoading] = useState(false);
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const [userData, setUserData] = useState({});
+
+  const navigate = useNavigate();
 
   //отправляем запрос на сервер и рендерим данные о пользователе
   useEffect(() => {
@@ -226,7 +233,58 @@ function App() {
       });
   }
 
-  const [loggedIn, setLoggedIn] = useState(false);
+  function handleUserSignIn({ password, email }) {
+    auth
+      .authorize(password, email)
+      .then((data) => {
+        if (data.token) {
+          localStorage.setItem("jwt", data.token);
+          setUserData({ email: email });
+          setLoggedIn(true);
+          navigate("/", { replace: true });
+        }
+      })
+
+      .catch((error) => {
+        console.log(`error with login: ${error}`);
+      });
+  }
+
+  function handleUserSignUp({ password, email }) {
+    auth
+      .register(password, email)
+      .then((res) => {
+        navigate("/sign-in", { replace: true });
+      })
+      .catch((error) => {
+        console.log(`error with reg: ${error}`);
+      });
+  }
+
+  function handleTokenCheck() {
+    if (localStorage.getItem("jwt")) {
+      const token = localStorage.getItem("jwt");
+      auth.getContent(token).then((res) => {
+        if (res) {
+          const userData = {
+            email: res.data.email,
+          };
+          setLoggedIn(true);
+          setUserData(userData);
+          navigate("/", { replace: true });
+        }
+      });
+    }
+  }
+
+  const handleSignOut = () => {
+    localStorage.removeItem("jwt");
+    navigate("/sign-in");
+  };
+
+  useEffect(() => {
+    handleTokenCheck();
+  }, []);
 
   return (
     <div className="page__content">
@@ -237,7 +295,6 @@ function App() {
             element={
               <ProtectedRoute loggedIn={loggedIn}>
                 <Main
-                  key="main"
                   onEditProfile={handleEditProfileClick}
                   onAddPlace={handleAddPlaceClick}
                   onEditAvatar={handleEditAvatarClick}
@@ -245,15 +302,20 @@ function App() {
                   onCardLike={handleCardLike}
                   onCardDelete={handleConfirmDeleteCardPopup}
                   cards={cards}
+                  userData={userData}
+                  handleSignOut={handleSignOut}
                 />
               </ProtectedRoute>
             }
           />
           <Route
             path="/sign-in"
-            element={<Login setLoggedIn={setLoggedIn} />}
+            element={<Login handleUserSignIn={handleUserSignIn} />}
           />
-          <Route path="/sign-up" element={<Register />} />
+          <Route
+            path="/sign-up"
+            element={<Register handleUserSignUp={handleUserSignUp} />}
+          />
           <Route
             path="/"
             element={

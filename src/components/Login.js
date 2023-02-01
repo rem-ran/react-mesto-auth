@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import CommonLoginPage from "./CommonLoginPage";
 import Header from "./Header";
-import * as Auth from "./Auth";
 
-function Login({ setLoggedIn }) {
+function Login({ handleUserSignIn }) {
   const [formValue, setFormValue] = useState({ email: "", password: "" });
-  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -18,12 +16,11 @@ function Login({ setLoggedIn }) {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { password, email } = formValue;
-    Auth.authorize(password, email).then((res) => {
-      setFormValue({ password: "", email: "" });
-      setLoggedIn(true);
-      navigate("/", { replace: true });
-    });
+    if (!formValue.email || !formValue.password) {
+      return;
+    }
+    handleUserSignIn(formValue);
+    setFormValue({ password: "", email: "" });
   };
   return (
     <>
