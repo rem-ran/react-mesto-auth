@@ -39,7 +39,11 @@ function InfoTooltip({ isOk, isNotOk, onClose }) {
         <img
           className="popup__status-img"
           src={isOk ? okPic : notOkPic}
-          alt="icon"
+          alt={
+            isOk
+              ? "black check mark icon in a circle"
+              : "red cross icon in a circle"
+          }
         />
         <h2 className={`popup__heading popup__heading_type_info`}>
           {isOk
