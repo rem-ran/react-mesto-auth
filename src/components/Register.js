@@ -14,9 +14,9 @@ function Register({ handleUserSignUp }) {
       [name]: value,
     });
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formValue);
     handleUserSignUp(formValue);
   };
   return (

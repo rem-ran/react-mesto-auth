@@ -5,9 +5,7 @@ import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { CurrentUserContext } from "../context/CurrentUserContext";
 
 // импортируем компоненты
-import Footer from "./Footer";
 import Main from "./Main";
-import Header from "./Header";
 import ImagePopup from "./ImagePopup";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
@@ -16,6 +14,7 @@ import PopupWithConfirmation from "./PopupWithConfirmation";
 import Login from "./Login";
 import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
+import InfoTooltip from "./InfoTooltip";
 import api from "../utils/api";
 import * as auth from "../utils/auth";
 
@@ -48,9 +47,15 @@ function App() {
   //переменная состояния открытого модального окна
   const [isLoading, setIsLoading] = useState(false);
 
+  //переменная состояния авторизации пользователя
   const [loggedIn, setLoggedIn] = useState(false);
 
+  //переменная состояния данных пользователя, полученных при авторизации пользователя
   const [userData, setUserData] = useState({});
+
+  //переменные состояния попапа с подсказкой
+  const [isOkTooltipOpen, setIsOkTooltipOpen] = useState(false);
+  const [isNotOkTooltipOpen, setIsNotOkTooltipOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -104,6 +109,8 @@ function App() {
     setIsEditProfilePopupOpen(false);
     setIsCardOpen(false);
     setIsConfirmationPopupOpen(false);
+    setIsOkTooltipOpen(false);
+    setIsNotOkTooltipOpen(false);
   };
 
   //отправляем запроса к API для рендеринга начального списка карточек при загрузке страницы
@@ -233,6 +240,7 @@ function App() {
       });
   }
 
+  //метод обработки авторизации пользоваетля на странице
   function handleUserSignIn({ password, email }) {
     auth
       .authorize(password, email)
@@ -246,21 +254,26 @@ function App() {
       })
 
       .catch((error) => {
-        console.log(`error with login: ${error}`);
+        setIsNotOkTooltipOpen(true);
+        console.log(`Error with login: ${error}`);
       });
   }
 
+  //метод обработки регистрации пользоваетля на странице
   function handleUserSignUp({ password, email }) {
     auth
       .register(password, email)
       .then((res) => {
+        setIsOkTooltipOpen(true);
         navigate("/sign-in", { replace: true });
       })
       .catch((error) => {
-        console.log(`error with reg: ${error}`);
+        setIsNotOkTooltipOpen(true);
+        console.log(`Error with registration: ${error}`);
       });
   }
 
+  //метод проверки токенов авторизированных пользователей, вернувшихся в приложение
   function handleTokenCheck() {
     if (localStorage.getItem("jwt")) {
       const token = localStorage.getItem("jwt");
@@ -277,17 +290,22 @@ function App() {
     }
   }
 
+  //метод выхода пользоваетля из системы
   const handleSignOut = () => {
     localStorage.removeItem("jwt");
+    setLoggedIn(false);
     navigate("/sign-in");
   };
 
+  //вызываем метод проверки токенов при рендеринге главной страницы
   useEffect(() => {
     handleTokenCheck();
   }, []);
 
   return (
-    <div className="page__content">
+    <div
+      className={`page__content ${!loggedIn ? "page__content_type_login" : ""}`}
+    >
       <CurrentUserContext.Provider value={currentUser}>
         <Routes>
           <Route
@@ -360,6 +378,11 @@ function App() {
         <ImagePopup
           card={selectedCard}
           isOpen={isCardOpen}
+          onClose={closeAllPopups}
+        />
+        <InfoTooltip
+          isOk={isOkTooltipOpen}
+          isNotOk={isNotOkTooltipOpen}
           onClose={closeAllPopups}
         />
       </CurrentUserContext.Provider>
