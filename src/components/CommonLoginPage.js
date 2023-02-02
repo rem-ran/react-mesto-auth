@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import * as Auth from "../utils/auth";
 
-function CommonLoginPage({ children, heading, btnTxt }) {
+//общий компонент для регистрации и авторизации
+function CommonLoginPage({ children, heading, btnTxt, handleSubmit }) {
   const [formValue, setFormValue] = useState({ email: "", password: "" });
-  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -13,18 +12,21 @@ function CommonLoginPage({ children, heading, btnTxt }) {
       [name]: value,
     });
   };
-  const handleSubmit = (e) => {
+
+  //метод обработки кнопки подтверждения
+  const onSubmit = (e) => {
     e.preventDefault();
-    const { password, email } = formValue;
-    Auth.register(password, email).then((res) => {
-      navigate("/sign-in", { replace: true });
-    });
+    if (!formValue.email || !formValue.password) {
+      return;
+    }
+    handleSubmit(formValue);
+    setFormValue({ password: "", email: "" });
   };
 
   return (
     <div className="login login__container">
       <h2 className="login__heading">{heading}</h2>
-      <form onSubmit={handleSubmit} className="login__form">
+      <form onSubmit={onSubmit} className="login__form">
         <input
           id="email"
           name="email"
