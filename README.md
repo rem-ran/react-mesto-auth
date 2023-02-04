@@ -2,7 +2,7 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-С сайтом можно ознакомиться по ссылке https://rem-ran.github.io/mesto-react/
+С сайтом можно ознакомиться по ссылке https://rem-ran.github.io/react-mesto-auth/
 
 ---
 
