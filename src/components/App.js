@@ -61,19 +61,21 @@ function App() {
 
   //отправляем запрос на сервер и рендерим данные о пользователе
   useEffect(() => {
-    api
-      .getServerUserInfo()
+    if (loggedIn) {
+      api
+        .getServerUserInfo()
 
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
+        .then((userData) => {
+          setCurrentUser(userData);
+        })
 
-      .catch((error) => {
-        console.log(
-          `Ошибка при начальной загрузки информации пользователя с сервера: ${error}`
-        );
-      });
-  }, []);
+        .catch((error) => {
+          console.log(
+            `Ошибка при начальной загрузки информации пользователя с сервера: ${error}`
+          );
+        });
+    }
+  }, [loggedIn]);
 
   //метод обработки открытия попапа обновления данных пользователя
   const handleEditProfileClick = () => {
@@ -115,19 +117,21 @@ function App() {
 
   //отправляем запроса к API для рендеринга начального списка карточек при загрузке страницы
   useEffect(() => {
-    api
-      .getAllCards()
+    if (loggedIn) {
+      api
+        .getAllCards()
 
-      .then((cards) => {
-        setCards(cards);
-      })
+        .then((cards) => {
+          setCards(cards);
+        })
 
-      .catch((error) => {
-        console.log(
-          `Ошибка при начальной загрузки карточек с сервера: ${error}`
-        );
-      });
-  }, []);
+        .catch((error) => {
+          console.log(
+            `Ошибка при начальной загрузки карточек с сервера: ${error}`
+          );
+        });
+    }
+  }, [loggedIn]);
 
   //метод запроса к API для добавления и снятия лайка с карточки
   function handleCardLike(card) {
@@ -302,6 +306,7 @@ function App() {
     handleTokenCheck();
   }, []);
 
+  console.log(loggedIn);
   return (
     <div
       className={`page__content ${!loggedIn ? "page__content_type_login" : ""}`}
@@ -310,6 +315,16 @@ function App() {
         <Routes>
           <Route
             path="/"
+            element={
+              loggedIn ? (
+                <Navigate to="/mesto-react-auth" replace />
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
+            }
+          />
+          <Route
+            path="/mesto-react-auth"
             element={
               <ProtectedRoute loggedIn={loggedIn}>
                 <Main
@@ -333,16 +348,6 @@ function App() {
           <Route
             path="/sign-up"
             element={<Register handleUserSignUp={handleUserSignUp} />}
-          />
-          <Route
-            path="/"
-            element={
-              loggedIn ? (
-                <Navigate to="/" replace />
-              ) : (
-                <Navigate to="/sign-in" replace />
-              )
-            }
           />
         </Routes>
         {/* попап обновления данных пользователя */}
