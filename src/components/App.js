@@ -259,17 +259,12 @@ function App() {
   //метод обработки авторизации пользоваетля на странице
   function handleUserSignIn({ password, email }) {
     auth
-      .authorize(password, email)
+      .authorize({ password, email })
       .then((data) => {
         if (data.token) {
           localStorage.setItem("jwt", data.token);
           setUserData({ email });
           setLoggedIn(true);
-          handleLogin(
-            true,
-            { img: okPic, alt: "black check mark icon in a circle" },
-            "Вы успешно вошли!"
-          );
           navigate("/", { replace: true });
         }
       })
@@ -287,7 +282,7 @@ function App() {
   //метод обработки регистрации пользоваетля на странице
   function handleUserSignUp({ password, email }) {
     auth
-      .register(password, email)
+      .register({ password, email })
       .then((res) => {
         handleLogin(
           true,

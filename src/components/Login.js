@@ -11,7 +11,7 @@ function Login({ handleUserSignIn }) {
         </Link>
       </Header>
       <CommonLoginPage
-        handleSubmit={handleUserSignIn}
+        handleUserSubmit={handleUserSignIn}
         heading={"Вход"}
         btnTxt={"Войти"}
       ></CommonLoginPage>

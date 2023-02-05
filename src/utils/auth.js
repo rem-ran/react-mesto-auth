@@ -7,7 +7,7 @@ function getResponseData(res) {
   return res.json();
 }
 
-export const register = (password, email) => {
+export const register = ({ password, email }) => {
   return fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
@@ -17,7 +17,7 @@ export const register = (password, email) => {
   }).then(getResponseData);
 };
 
-export const authorize = (password, email) => {
+export const authorize = ({ password, email }) => {
   return fetch(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
