@@ -18,7 +18,12 @@ import InfoTooltip from "./InfoTooltip";
 import api from "../utils/api";
 import * as auth from "../utils/auth";
 
+import okPic from "../images/check-mark.svg";
+import notOkPic from "../images/cross-mark.svg";
+
 function App() {
+  const navigate = useNavigate();
+
   //переменная состояния попапа обновления данных пользователя
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
 
@@ -53,29 +58,14 @@ function App() {
   //переменная состояния данных пользователя, полученных при авторизации пользователя
   const [userData, setUserData] = useState({});
 
-  //переменные состояния попапа с подсказкой
-  const [isOkTooltipOpen, setIsOkTooltipOpen] = useState(false);
-  const [isNotOkTooltipOpen, setIsNotOkTooltipOpen] = useState(false);
+  //переменная состояния текста сообщения в информационном модальном окне
+  const [infoModalMsg, setInfoModalMsg] = useState("");
 
-  const navigate = useNavigate();
+  //переменная состояния попапа с подсказкой
+  const [infoTooltipStatus, setInfoTooltipStatus] = useState(false);
 
-  //отправляем запрос на сервер и рендерим данные о пользователе
-  useEffect(() => {
-    if (loggedIn) {
-      api
-        .getServerUserInfo()
-
-        .then((userData) => {
-          setCurrentUser(userData);
-        })
-
-        .catch((error) => {
-          console.log(
-            `Ошибка при начальной загрузки информации пользователя с сервера: ${error}`
-          );
-        });
-    }
-  }, [loggedIn]);
+  //переменная состояния изображения в информационном модальном окне
+  const [modalImg, setModalImg] = useState({ img: "", alt: "" });
 
   //метод обработки открытия попапа обновления данных пользователя
   const handleEditProfileClick = () => {
@@ -111,13 +101,14 @@ function App() {
     setIsEditProfilePopupOpen(false);
     setIsCardOpen(false);
     setIsConfirmationPopupOpen(false);
-    setIsOkTooltipOpen(false);
-    setIsNotOkTooltipOpen(false);
+    setInfoTooltipStatus(false);
   };
 
-  //отправляем запроса к API для рендеринга начального списка карточек при загрузке страницы
+  //отправляем запросы к API для рендеринга начального списка карточек и данных о пользователе
   useEffect(() => {
+    //отправляем запрос только после того как пользователь успешно авторизировался
     if (loggedIn) {
+      //запрос на получение карточек
       api
         .getAllCards()
 
@@ -128,6 +119,20 @@ function App() {
         .catch((error) => {
           console.log(
             `Ошибка при начальной загрузки карточек с сервера: ${error}`
+          );
+        });
+
+      //запрос на получение данных пользователя
+      api
+        .getServerUserInfo()
+
+        .then((userData) => {
+          setCurrentUser(userData);
+        })
+
+        .catch((error) => {
+          console.log(
+            `Ошибка при начальной загрузки информации пользователя с сервера: ${error}`
           );
         });
     }
@@ -244,21 +249,32 @@ function App() {
       });
   }
 
+  //метод обработки элементов информационного модального окна при авторизации
+  function handleLogin(state, { img }, msg) {
+    setInfoTooltipStatus(state);
+    setInfoModalMsg(msg);
+    setModalImg({ img });
+  }
+
   //метод обработки авторизации пользоваетля на странице
   function handleUserSignIn({ password, email }) {
     auth
-      .authorize(password, email)
+      .authorize({ password, email })
       .then((data) => {
         if (data.token) {
           localStorage.setItem("jwt", data.token);
-          setUserData({ email: email });
+          setUserData({ email });
           setLoggedIn(true);
           navigate("/", { replace: true });
         }
       })
 
       .catch((error) => {
-        setIsNotOkTooltipOpen(true);
+        handleLogin(
+          true,
+          { img: notOkPic, alt: "red cross icon in a circle" },
+          "Что-то пошло не так! Попрубуйте еще раз."
+        );
         console.log(`Error with login: ${error}`);
       });
   }
@@ -266,31 +282,44 @@ function App() {
   //метод обработки регистрации пользоваетля на странице
   function handleUserSignUp({ password, email }) {
     auth
-      .register(password, email)
+      .register({ password, email })
       .then((res) => {
-        setIsOkTooltipOpen(true);
+        handleLogin(
+          true,
+          { img: okPic, alt: "black check mark icon in a circle" },
+          "Вы успешно зарегистрировались!"
+        );
         navigate("/sign-in", { replace: true });
       })
       .catch((error) => {
-        setIsNotOkTooltipOpen(true);
+        handleLogin(
+          true,
+          { img: notOkPic, alt: "red cross icon in a circle" },
+          "Что-то пошло не так! Попрубуйте еще раз."
+        );
         console.log(`Error with registration: ${error}`);
       });
   }
 
   //метод проверки токенов авторизированных пользователей, вернувшихся в приложение
   function handleTokenCheck() {
-    if (localStorage.getItem("jwt")) {
-      const token = localStorage.getItem("jwt");
-      auth.getContent(token).then((res) => {
-        if (res) {
-          const userData = {
-            email: res.data.email,
-          };
-          setLoggedIn(true);
-          setUserData(userData);
-          navigate("/", { replace: true });
-        }
-      });
+    const token = localStorage.getItem("jwt");
+    if (token) {
+      auth
+        .getContent(token)
+        .then((res) => {
+          if (res) {
+            const userData = {
+              email: res.data.email,
+            };
+            setLoggedIn(true);
+            setUserData(userData);
+            navigate("/", { replace: true });
+          }
+        })
+        .catch((error) => {
+          console.log(`Error with token check: ${error}`);
+        });
     }
   }
 
@@ -306,7 +335,6 @@ function App() {
     handleTokenCheck();
   }, []);
 
-  console.log(loggedIn);
   return (
     <div
       className={`page__content ${!loggedIn ? "page__content_type_login" : ""}`}
@@ -386,9 +414,10 @@ function App() {
           onClose={closeAllPopups}
         />
         <InfoTooltip
-          isOk={isOkTooltipOpen}
-          isNotOk={isNotOkTooltipOpen}
+          setInfoTooltipStatus={infoTooltipStatus}
           onClose={closeAllPopups}
+          infoModalMsg={infoModalMsg}
+          modalImg={modalImg}
         />
       </CurrentUserContext.Provider>
     </div>

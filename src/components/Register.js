@@ -11,7 +11,7 @@ function Register({ handleUserSignUp }) {
         </Link>
       </Header>
       <CommonLoginPage
-        handleSubmit={handleUserSignUp}
+        handleUserSubmit={handleUserSignUp}
         heading={"Регистрация"}
         btnTxt={"Зарегистрироваться"}
       >

@@ -1,47 +1,31 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 //общий компонент для регистрации и авторизации
-function CommonLoginPage({ children, heading, btnTxt, handleSubmit }) {
-  const [formValue, setFormValue] = useState({ email: "", password: "" });
+function CommonLoginPage({ children, heading, btnTxt, handleUserSubmit }) {
+  const { register, handleSubmit, reset } = useForm({
+    mode: "onBlur",
+  });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormValue({
-      ...formValue,
-      [name]: value,
-    });
-  };
-
-  //метод обработки кнопки подтверждения
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (!formValue.email || !formValue.password) {
-      return;
-    }
-    handleSubmit(formValue);
-    setFormValue({ password: "", email: "" });
-  };
+  function onSubmit(inputData) {
+    handleUserSubmit(inputData);
+    reset();
+  }
 
   return (
     <div className="login login__container">
       <h2 className="login__heading">{heading}</h2>
-      <form onSubmit={onSubmit} className="login__form">
+      <form onSubmit={handleSubmit(onSubmit)} className="login__form">
         <input
+          {...register("email", { required: true })}
           id="email"
-          name="email"
           type="email"
-          value={formValue.email}
-          onChange={handleChange}
           className="login__input"
           placeholder="Email"
         />
         <input
+          {...register("password", { required: true })}
           id="password"
-          name="password"
           type="password"
-          value={formValue.password}
-          onChange={handleChange}
           className="login__input"
           placeholder="Пароль"
         />
