@@ -35,9 +35,6 @@ export const getContent = (token) => {
       Authorization: `Bearer ${token}`,
     },
   })
-    .then((res) => res.json())
-    .then((data) => data)
-    .catch((error) => {
-      console.log(`Error status: ${error}`);
-    });
+    .then(getResponseData)
+    .then((data) => data);
 };
